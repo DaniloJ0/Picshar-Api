@@ -3,7 +3,9 @@ API para un clon de Twitter + Instagram | Backend project 2
 
 # Steps for Setup
 
-## Install package with follow command
+cree un archivo .env y copie lo que se encuentra en .env.example 
+
+## Install packages with follow command
 
 ```
 npm install
@@ -17,7 +19,7 @@ npm start
 ## or 
 
 ```
-npm start dev
+npm run dev
 ```
 
 
