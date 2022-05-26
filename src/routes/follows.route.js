@@ -1,5 +1,5 @@
+import * as followController from '../controllers/follows.controller.js'
 import { Router } from 'express';
-import followController from '../controllers/follows.controller'
 const router = Router();
 
 router.get('/following', followController.fetchFollowing);
