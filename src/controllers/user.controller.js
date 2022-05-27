@@ -71,7 +71,25 @@ export const register =  async(req, res)=> {
 
 
 
-export const inicio =  async(req, res)=> {
+export const InfoUser =  async(req, res)=> {
+  const user_id  = req.query;
+  if (!user_id) return res.status(400).json({ message: 'Missing user_id' });
+  try {
+    const user = await User.findById(user_id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.status(200).json({
+      username: user.username,
+      email: user.email,
+      bio: user.biografia,
+      // liked_count,
+      // posts_count,
+      // followers_count,
+      // followed_count,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
 
 }
 

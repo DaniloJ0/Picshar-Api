@@ -3,7 +3,7 @@ import {verifyToken}  from '../middleware/auth.middleware.js'
 import {Router} from 'express';
 const router = Router();
 
-// router.get('/', userController.inicio);
+router.get('/', userController.InfoUser);
 router.post('/login', userController.login);
 router.post('/register', userController.register);
 
