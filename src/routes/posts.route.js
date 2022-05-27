@@ -8,7 +8,7 @@ router.post('/', postController.createdPost);
 router.post('/', postController.commentPost);
 router.post('/like', postController.giveLikePost);
 router.post('/save', postController.savePost);
-router.get('/liked-by', postController.fetchLikePost);
+router.get('/liked-by', postController.fetchlikesPost);
 router.get('/saved-by', postController.savedPost);
 router.get('/timeline', postController.fecthTimeLinePost);
 
