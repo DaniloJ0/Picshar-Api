@@ -24,7 +24,7 @@ export const infoPost = async (req, res)=>{
 }
 
 
-export const LikePost = async (req, res)=>{
+export const giveLikePost = async (req, res)=>{
     
 }
 
