@@ -1,12 +1,13 @@
 import Post from '../models/post.model.js';
 import Comment from '../models/comments.model.js'
 
+//5
 export const fecthPost = async (req, res)=>{
     const {author} = req.query;
+    if(!author) return res.status(400).json({message: 'Missing author'})
     try {
       const autho = await Post.find({author: {$eq: author}});
       if(!autho) return res.status(404).json({ message: 'User not found' });
-      const userPosts = await Post.find({ author: autho.author});
       return res.status(200).json(autho);
     } catch (error) {
       return res.status(400).json({ message: 'Missing author' });
@@ -30,7 +31,6 @@ export const fecthTimeLinePost = async (req, res)=>{
 }
 
 export const createdPost = async (req, res)=>{
-
     if(req.body.img_url){
         const {img_url, bio, author} = req.body;
         try {

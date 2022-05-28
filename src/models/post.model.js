@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 const postSchema = new Schema({
     img_url: { type: String, required: true },
     bio: { type: String, required: true },
-    author: {type: Schema.Types.ObjectId, require: true},
+    author: {type: Schema.Types.ObjectId, require: true, ref: 'User'},
     likes: [
         {
           user: {

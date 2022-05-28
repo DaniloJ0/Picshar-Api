@@ -4,6 +4,7 @@ import * as bcrypt  from '../utils/bcrypt.utils.js'
 
 export const login =  async(req, res)=> {
     const {username, password} = req.body;
+    if(!username || !password) return res.status(400).json({error: 'Missing username or password'})
     try {
         const user = await User.findOne({username});
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -24,23 +25,15 @@ export const login =  async(req, res)=> {
 
 export const loginToken =  async(req, res)=> {
   const {token} = req.body;
+  if(!token) return res.status(400).json({error: 'Token is required'});
   try {
-      const user = await User.findOne({username});
-      if (!user) return res.status(404).json({ message: 'User not found' });
-      if (!bcrypt.confirmPassword(password, user.password)) {
-        return res.status(401).json({ message: 'Incorrect password' });
-      }
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(400).json({ error: 'Invalid token1' });
 
-      const token = jwt.sign({
-          id: user._id,
-          name: user.username
-      }, process.env.TOKEN_SECRET)
-
-      user.token =token;
-
-      return res.status(200).json(token);
+    return res.status(200).json({correct: 'funciona'});
   } catch (error) {
-      return res.status(500).json({ error });
+    res.status(400).json({})
   }
 }
 
@@ -51,7 +44,7 @@ export const register =  async(req, res)=> {
       const user = await User.create({
         username,
         password: bcrypt.encryptPassword(password),
-        email,
+        email: email.toLowerCase(),
         birthdate,
         biografia,
       });
@@ -81,10 +74,10 @@ export const InfoUser =  async(req, res)=> {
       username: user.username,
       email: user.email,
       bio: user.biografia,
-      // liked_count,
-      // posts_count,
-      // followers_count,
-      // followed_count,
+      liked_count: user.likes,
+      posts_count: user.posts,
+      followers_count: user.followers,
+      followed_count: user.follows,
     });
 
   } catch (error) {
