@@ -1,5 +1,6 @@
 import Post from '../models/post.model.js';
 import Comment from '../models/comments.model.js'
+import Like from '../models/comments.model.js'
 
 //5
 export const fecthPost = async (req, res)=>{
@@ -12,9 +13,17 @@ export const fecthPost = async (req, res)=>{
     } catch (error) {
       return res.status(400).json({ message: 'Missing author' });
     }
-}
-
-export const fetchlikesPost = async (req, res)=>{
+  }
+  
+  export const fetchlikesPost = async (req, res)=>{
+    // const user_id = req.query;
+    // if(!user_id ) return res.status(400).json({message: 'Missing user_id'});
+    // try {
+    //   const post = await Post.find({likes: user_id}).populate('likes');
+    //   return res.status(200).json(post);
+    // } catch (error) {
+    //   return res.status(400).json({ message: 'Missing user_id' });
+    // }
     
 }
 
@@ -74,7 +83,20 @@ export const infoPost = async (req, res)=>{
 
 
 export const giveLikePost = async (req, res)=>{
+  // const {post_id} = req.body;
+  // if(!post_id) return res.status(400).json({error: 'Missing post_id'});
+  // try {
+  //   const post = Post.find(post_id);
+  //   if(!post_id) return res.status(404).json({message: 'Post not found'});
+  //   const like = await Like.create({
+  //     post_id,
+      
+  //   });
+
+  //   return res.status(201).json(post);
+  // } catch (error) {
     
+  // }
 }
 
 export const savePost = async (req, res)=>{

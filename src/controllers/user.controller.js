@@ -31,7 +31,7 @@ export const loginToken =  async(req, res)=> {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(400).json({ error: 'Invalid token1' });
 
-    return res.status(200).json({correct: 'funciona'});
+    return res.status(200).json({});
   } catch (error) {
     res.status(400).json({})
   }

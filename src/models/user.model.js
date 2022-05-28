@@ -7,14 +7,14 @@ const userSchema = new Schema({
   email: { type: String, require: true },
   birthdate: { type: String, require: true },
   biografia: { type: String, require: true },
-  likes: {
-    posts: {
-      type: Schema.Types.ObjectId,
+  postsLiked: [
+    {
+      type: Schema.Types.ObjectId, ref: 'user'
     },
-  },
-  posts: {
+  ],
+  posts: [{
     type: Schema.Types.ObjectId,
-  },
+  }],
   follows: [
     {
       user: {
