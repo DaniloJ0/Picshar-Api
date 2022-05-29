@@ -1,6 +1,5 @@
 import Post from "../models/post.model.js";
 import Comment from "../models/comments.model.js";
-import Saved from "../models/savePost.model.js";
 import User from "../models/user.model.js";
 
 //GET /posts/
@@ -10,7 +9,8 @@ export const fecthPost = async (req, res) => {
   try {
     const autho = await Post.find({ author: { $eq: author } });
     if (!autho) return res.status(404).json({ message: "User not found" });
-    return res.status(200).json(autho);
+    const posts = autho.posts 
+    return res.status(200).json(posts);
   } catch (error) {
     return res.status(400).json({ message: "Missing author" });
   }
@@ -18,34 +18,24 @@ export const fecthPost = async (req, res) => {
 
 //GET /posts/liked-by
 export const fetchlikesPost = async (req, res) => {
-  const user_id = req.query;
+  const {user_id} = req.query;
   if (!user_id) return res.status(400).json({ message: "Missing user_id" });
   try {
     const user = await User.findById(user_id);
     if (!user) return res.status(404).json({ message: "User not found" });
-    // const lista = user.find({});
-    // console.log(lista.postsLiked)
-    // lista = lista.map(i => Post.findById(i));
-    // return res.status(200).json(lista);
+    const posts = await Post.find({ _id: { $in: user.postsLiked }});
+    return res.status(200).json(posts);
   } catch (error) {
     return res.status(404).json({ message: "Missing user_id2" });
   }
-  // const posts = await Post.find({ _id: { $in: user.postsLiked }});
-  // const posts= user.postsLiked.map(val=> Post.find({ _id: { $eq: val}}))    
 };
 
 //GET /posts/saved-by
 export const savedPost = async (req, res) => {
   const { id } = req.user;
-  const user = User.findById(user_id);
-  const posts = await Post.find({ _id: { $in: user.postsLiked } });/*
-  const savedPost = await Saved.find({ userId: { $eq: id } });
-  let postsId = [];
-  savedPost.forEach((i) => {
-    postsId.push(i.postId);
-  });
-  const posts = await Post.find({ _id: { $in: postsId } });
-  return res.status(200).json(posts);*/
+  const user = User.findById(id);
+  const posts = await Post.find({ _id: { $in: user.postSaved } });
+  return res.status(200).json(posts)
 };
 
 //GET /posts/timeline
@@ -63,11 +53,14 @@ export const createdPost = async (req, res) => {
   const { img_url, bio, author } = req.body;
   if(!img_url || !bio || !author) return res.status(400).json({message: 'Missing img_url or bio or author'})
   try {
-    await Post.create({
+    const post = await Post.create({
       img_url,
       bio,
       author,
     });
+    const user = await User.findById(author);
+    user.posts.push(post._id);
+    await user.save();
     return res.status(201).json();
   } catch (error) {
     return res.status(500).json({ error });

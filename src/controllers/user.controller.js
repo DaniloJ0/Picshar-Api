@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import Post from "../models/post.model.js";
 import jwt from 'jsonwebtoken';
 import * as bcrypt from '../utils/bcrypt.utils.js'
 
@@ -69,13 +70,14 @@ export const InfoUser = async (req, res) => {
       username: user.username,
       email: user.email,
       bio: user.biografia,
-      liked_count: user.likes,
-      posts_count: user.posts,
-      followers_count: user.followers,
-      followed_count: user.follows,
+      liked_count: user.postsLiked.length,
+      posts_count: user.posts.length,
+      followers_count: user.followers.length,
+      followed_count: user.follows.length,
     });
     //res.json(req.user)
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error });
   }
 }

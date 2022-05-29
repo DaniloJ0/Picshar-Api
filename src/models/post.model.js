@@ -5,11 +5,7 @@ const postSchema = new Schema({
   img_url: { type: String, required: true },
   bio: { type: String, required: true },
   author: { type: Schema.Types.ObjectId, require: true },
-  likes: [
-    {
-      type: Schema.Types.ObjectId
-    },
-  ],
+  likes: [{type: Schema.Types.ObjectId}],
   comment: [
     {
       type: Schema.Types.ObjectId,
