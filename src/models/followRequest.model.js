@@ -13,5 +13,3 @@ const followRequest = new Schema({
 });
 
 export default model('Request', followRequest);
-
-

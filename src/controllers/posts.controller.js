@@ -9,7 +9,7 @@ export const fecthPost = async (req, res) => {
   try {
     const autho = await Post.find({ author: { $eq: author } });
     if (!autho) return res.status(404).json({ message: "User not found" });
-    const posts = autho.posts 
+    const posts = autho.posts;
     return res.status(200).json(posts);
   } catch (error) {
     return res.status(400).json({ message: "Missing author" });
@@ -26,7 +26,7 @@ export const fetchlikesPost = async (req, res) => {
     const posts = await Post.find({ _id: { $in: user.postsLiked }});
     return res.status(200).json(posts);
   } catch (error) {
-    return res.status(404).json({ message: "Missing user_id2" });
+    return res.status(404).json({ message: "Missing ..." });
   }
 };
 
