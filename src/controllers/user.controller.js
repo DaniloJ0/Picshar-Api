@@ -1,6 +1,6 @@
 import User from '../models/user.model.js';
 import jwt from 'jsonwebtoken';
-import * as bcrypt  from '../utils/bcrypt.utils.js'
+import * as bcrypt from '../utils/bcrypt.utils.js'
 
 export const login =  async(req, res)=> {
     const {username, password} = req.body;
@@ -37,35 +37,31 @@ export const loginToken =  async(req, res)=> {
   }
 }
 
+export const register = async (req, res) => {
+  const { username, password, email, birthdate, biografia } = req.body;
+  try {
+    const user = await User.create({
+      username,
+      password: bcrypt.encryptPassword(password),
+      email,
+      birthdate,
+      biografia
+    });
+    const token = jwt.sign({
+      name: user.username,
+      id: user._id
+    }, process.env.TOKEN_SECRET)
 
-export const register =  async(req, res)=> {
-    const {username, password,email,birthdate,biografia} = req.body;
-    try {
-      const user = await User.create({
-        username,
-        password: bcrypt.encryptPassword(password),
-        email: email.toLowerCase(),
-        birthdate,
-        biografia,
-      });
-      const token = jwt.sign({
-        name: user.username,
-        id: user._id
-      },process.env.TOKEN_SECRET)
+    user.token = token;
 
-    user.token= token;
-    
-    return res.status(201).json(user);
-    } catch (error) {
-      return res.status(500).json({ error });
-    }
-
+    return res.status(201).json(user.token);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
 }
 
-
-
-export const InfoUser =  async(req, res)=> {
-  const user_id  = req.query;
+export const InfoUser = async (req, res) => {
+  const user_id = req.query;
   if (!user_id) return res.status(400).json({ message: 'Missing user_id' });
   try {
     const user = await User.findById(user_id);
@@ -85,5 +81,3 @@ export const InfoUser =  async(req, res)=> {
   }
 
 }
-
-
