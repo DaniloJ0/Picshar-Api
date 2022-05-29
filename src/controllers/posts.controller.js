@@ -1,121 +1,150 @@
-import Post from '../models/post.model.js';
-import Comment from '../models/comments.model.js'
-import Like from '../models/comments.model.js'
-//5
-export const fecthPost = async (req, res)=>{
-    const {author} = req.query;
-    if(!author) return res.status(400).json({message: 'Missing author'})
-    try {
-      const autho = await Post.find({author: {$eq: author}});
-      if(!autho) return res.status(404).json({ message: 'User not found' });
-      return res.status(200).json(autho);
-    } catch (error) {
-      return res.status(400).json({ message: 'Missing author' });
-    }
-  }
-  
-  export const fetchlikesPost = async (req, res)=>{
-    // const user_id = req.query;
-    // if(!user_id ) return res.status(400).json({message: 'Missing user_id'});
-    // try {
-    //   const post = await Post.find({likes: user_id}).populate('likes');
-    //   return res.status(200).json(post);
-    // } catch (error) {
-    //   return res.status(400).json({ message: 'Missing user_id' });
-    // }
-    
-}
+import Post from "../models/post.model.js";
+import Comment from "../models/comments.model.js";
+import Saved from "../models/savePost.model.js";
+import User from "../models/user.model.js";
 
+//GET /posts/
+export const fecthPost = async (req, res) => {
+  const { author } = req.query;
+  if (!author) return res.status(400).json({ message: "Missing author" });
+  try {
+    const autho = await Post.find({ author: { $eq: author } });
+    if (!autho) return res.status(404).json({ message: "User not found" });
+    return res.status(200).json(autho);
+  } catch (error) {
+    return res.status(400).json({ message: "Missing author" });
+  }
+};
+
+//GET /posts/liked-by
+export const fetchlikesPost = async (req, res) => {
+  const user_id = req.query;
+  if (!user_id) return res.status(400).json({ message: "Missing user_id" });
+  try {
+    const user = await User.findById(user_id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    // const lista = user.find({});
+    // console.log(lista.postsLiked)
+    // lista = lista.map(i => Post.findById(i));
+    // return res.status(200).json(lista);
+  } catch (error) {
+    return res.status(404).json({ message: "Missing user_id2" });
+  }
+  // const posts = await Post.find({ _id: { $in: user.postsLiked }});
+  // const posts= user.postsLiked.map(val=> Post.find({ _id: { $eq: val}}))    
+};
+
+//GET /posts/saved-by
 export const savedPost = async (req, res) => {
-  if (req.body.post_id) {
+  const { id } = req.user;
+  const user = User.findById(user_id);
+  const posts = await Post.find({ _id: { $in: user.postsLiked } });/*
+  const savedPost = await Saved.find({ userId: { $eq: id } });
+  let postsId = [];
+  savedPost.forEach((i) => {
+    postsId.push(i.postId);
+  });
+  const posts = await Post.find({ _id: { $in: postsId } });
+  return res.status(200).json(posts);*/
+};
 
-  }
-}
-
+//GET /posts/timeline
 export const fecthTimeLinePost = async (req, res) => {
   const Page = parseInt(req.body.page);
-  const posts = await Post.find().sort({ _id: -1 }).skip(Page * 2 - 2).limit(2)
+  const { id } = req.user;
+  const posts = await Post.find({ author: { $eq: id } })
+    .skip(Page * 2 - 2)
+    .limit(2);
   res.send(posts);
-}
+};
 
-export const createdPost = async (req, res)=>{
-    if(req.body.img_url){
-        const {img_url, bio, author} = req.body;
-        try {
-          await Post.create({
-            img_url,
-            bio,
-            author
-          });
-          return res.status(201).json();
-        } catch (error) {
-          return res.status(500).json({ error });
-  }  
-}     
-}
+//POST /posts/
+export const createdPost = async (req, res) => {
+  const { img_url, bio, author } = req.body;
+  if(!img_url || !bio || !author) return res.status(400).json({message: 'Missing img_url or bio or author'})
+  try {
+    await Post.create({
+      img_url,
+      bio,
+      author,
+    });
+    return res.status(201).json();
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
 
+// GET /posts/
 export const infoPost = async (req, res) => {
-  const {post_id} = req.body;
+  const { post_id } = req.body;
   const post = await Post.findById(post_id);
-  if (post !== null || post !== undefined) {
+  if (!post) return res.status(400).json({ error });
     try {
-      const likes = await Like.find({ postId: { $eq: post_id } }).count()
+      const likes = await Like.find({ postId: { $eq: post_id } }).count();
       const comments = await Comment.find({ postId: { $eq: post_id } });
       const publi = {
         img_url: post.img_url,
         bio: post.bio,
         author: post.author,
         likes: likes,
-        comments: comments
-      }
-      return res.status(201).json(publi)
+        comments: comments,
+      };
+      return res.status(201).json(publi);
     } catch (error) {
-      return res.status(501).json({ error })
+      return res.status(501).json({ error });
     }
-  } else {
-    return res.status(500).json({ error })
-  }
-}
+};
 
-
+//POST /posts/like
 export const giveLikePost = async (req, res) => {
   const { post_id } = req.body;
-  const post = await Post.findById(post_id);
-  if (post !== null || post !== undefined) {
-    try {
-      if(!post_id) return res.status(404).json({message: 'Post not found'});
-      await Like.create({
-        postId: post_id,
-      });
-      return res.status(201).json();
-    } catch (error) {
-      return res.status(500).json({ error });
-    }
-  } else {
-    return res.status(500).json({ error })
+  if (!post_id) return res.status(500).json({ message: "Required post_id" });
+  const { id } = req.user;
+  try {
+    const post = await Post.findById(post_id);
+    if (!post) return res.status(500).json({ message: "Post not Found" });
+    const user = await User.findById(id);
+    user.postsLiked.push(post._id);
+    await user.save();
+    return res.status(201).json({});
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({error});
   }
-}
+};
 
+//POST /post/save
 export const savePost = async (req, res) => {
-}
+  const { post_id } = req.body;
+  if (!post_id) return res.status(500).json({ message: "Required post_id" });
+  const { id } = req.user;
+  try {
+    const post = await Post.findById(post_id);
+    if (!post) return res.status(500).json({ message: "Post not Found" });
+    const user = await User.findById(id);
+    user.postSaved.push(post._id);
+    await user.save();
+    return res.status(201).json({});
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
 
+//POST /posts/
 export const commentPost = async (req, res) => {
   const { post_id, comment } = req.body;
   const post = await Post.findById(post_id);
   if (post !== null || post !== undefined) {
     try {
-      //const user_id = post.author;
       await Comment.create({
-        //userId: user_id,
         postId: post_id,
-        bioComment: comment
+        bioComment: comment,
       });
-
       return res.status(201).json();
     } catch (error) {
       return res.status(500).json({ error });
     }
   } else {
-    return res.status(500).json({ error })
+    return res.status(500).json({ error });
   }
-}
+};

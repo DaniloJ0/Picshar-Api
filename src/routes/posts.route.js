@@ -1,18 +1,22 @@
 import * as postController from '../controllers/posts.controller.js'
+import {verifyToken}  from '../middleware/auth.middleware.js'
 import { Router } from 'express';
 const router = Router();
 
-router.get('/', (req, res) => {
+router.get('/', verifyToken, (req, res) => {
     const {post_id} = req.body;
-    if(!post_id) postController.fecthPost(req, res);
-    else postController.infoPost(req, res);
-});
-router.post('/', postController.createdPost);
-//router.post('/', postController.commentPost);
-router.post('/like', postController.giveLikePost);
-router.post('/save', postController.savePost);
-router.get('/liked-by', postController.fetchlikesPost);
-router.get('/saved-by', postController.savedPost);
-router.get('/timeline', postController.fecthTimeLinePost);
+    if (!post_id) postController.fecthPost(req,res)
+    else postController.infoPost(req, res)
+})
+router.post('/', verifyToken, (req, res) => {
+    const {post_id} = req.body;
+    if (!post_id) postController.createdPost(req, res)
+    else postController.commentPost(req, res)
+})
+router.post('/like', verifyToken, postController.giveLikePost);
+router.post('/save', verifyToken, postController.savePost);
+router.get('/liked-by', verifyToken, postController.fetchlikesPost);
+router.get('/saved-by', verifyToken, postController.savedPost);
+router.get('/timeline', verifyToken, postController.fecthTimeLinePost);
 
 export default router;

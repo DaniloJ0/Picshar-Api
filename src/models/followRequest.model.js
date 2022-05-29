@@ -9,12 +9,7 @@ const followRequest = new Schema({
     recipient: {
         type: Schema.Types.ObjectIdnt,
         required: true
-    },
-    status: {
-        type: int,
-        required: true
     }
-     
 });
 
 export default model('Request', followRequest);

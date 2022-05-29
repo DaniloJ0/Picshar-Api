@@ -7,29 +7,11 @@ const userSchema = new Schema({
   email: { type: String, require: true },
   birthdate: { type: String, require: true },
   biografia: { type: String, require: true },
-  postsLiked: [
-    {
-      type: Schema.Types.ObjectId, ref: 'user'
-    },
-  ],
-  posts: [{
-    type: Schema.Types.ObjectId,
-  }],
-  follows: [
-    {
-      user: {
-        type: Schema.Types.ObjectId,
-      },
-    },
-  ],
-  followers: [
-    {
-      user: {
-        type: Schema.Types.ObjectId,
-      },
-    },
-  ],
-  postSaved: [],
+  postsLiked: [{type: Schema.Types.ObjectId}],
+  posts: [{type: Schema.Types.ObjectId}],
+  follows: [{type: Schema.Types.ObjectId}],
+  followers: [{type: Schema.Types.ObjectId}],
+  postSaved: [{type: Schema.Types.ObjectId}],
   token: { type: String },
 });
 

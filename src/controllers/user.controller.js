@@ -12,28 +12,27 @@ export const login =  async(req, res)=> {
           return res.status(401).json({ message: 'Incorrect password' });
         }
 
-        const token = jwt.sign({
-            id: user._id,
-            name: user.username
-        }, process.env.TOKEN_SECRET)
+    const token = jwt.sign({
+      id: user._id,
+      name: user.username
+    }, process.env.TOKEN_SECRET)
 
-        return res.status(200).json(token);
-    } catch (error) {
-        return res.status(500).json({ error });
-    }
+    return res.status(200).json(token);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
 }
 
-export const loginToken =  async(req, res)=> {
+export const loginToken = async (req, res) => {
   const {token} = req.body;
   if(!token) return res.status(400).json({error: 'Token is required'});
   try {
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
     const user = await User.findById(decoded.id);
     if (!user) return res.status(400).json({ error: 'Invalid token1' });
-
     return res.status(200).json({});
   } catch (error) {
-    res.status(400).json({})
+    return res.status(400).json({error});
   }
 }
 
@@ -61,7 +60,7 @@ export const register = async (req, res) => {
 }
 
 export const InfoUser = async (req, res) => {
-  const user_id = req.query;
+  const {user_id} = req.query;
   if (!user_id) return res.status(400).json({ message: 'Missing user_id' });
   try {
     const user = await User.findById(user_id);
@@ -75,9 +74,8 @@ export const InfoUser = async (req, res) => {
       followers_count: user.followers,
       followed_count: user.follows,
     });
-
+    //res.json(req.user)
   } catch (error) {
     return res.status(500).json({ error });
   }
-
 }
