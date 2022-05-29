@@ -3,8 +3,12 @@ import {verifyToken}  from '../middleware/auth.middleware.js'
 import {Router} from 'express';
 const router = Router();
 
-router.get('/', userController.InfoUser);
-router.post('/login', userController.login);
+router.get('/', verifyToken, userController.InfoUser);
+router.post('/login', (req, res) => {
+    const {token} = req.body;
+    if (!token) userController.login(req, res)
+    else (userController.loginToken(req, req))
+})
 router.post('/', userController.register);
 
 export default router;

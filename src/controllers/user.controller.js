@@ -3,50 +3,27 @@ import jwt from 'jsonwebtoken';
 import * as bcrypt from '../utils/bcrypt.utils.js'
 
 export const login = async (req, res) => {
-  if (req.body.username && req.body.password) {
-    const { username, password } = req.body;
-    try {
-      const user = await User.findOne({ username });
-      if (!user) return res.status(404).json({ message: 'User not found' });
-      if (!bcrypt.confirmPassword(password, user.password)) {
-        return res.status(401).json({ message: 'Incorrect password' });
-      }
-
-      const token = jwt.sign({
-        id: user._id,
-        name: user.username
-      }, process.env.TOKEN_SECRET)
-
-      return res.status(200).json(token);
-    } catch (error) {
-      return res.status(500).json({ error });
+  const { username, password } = req.body;
+  try {
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!bcrypt.confirmPassword(password, user.password)) {
+      return res.status(401).json({ message: 'Incorrect password' });
     }
-  } else if (req.body.token) {
-    const { token } = req.body;
-    try {
-      const user = await User.findById(token.id);
-      if (!user) return res.status(404).json({ message: 'User not found' });
-      if (!bcrypt.confirmPassword(password, user.password)) {
-        return res.status(401).json({ message: 'Incorrect password' });
-      }
 
-      const toke = jwt.sign({
-        id: user._id,
-        name: user.username
-      }, process.env.TOKEN_SECRET)
+    const token = jwt.sign({
+      id: user._id,
+      name: user.username
+    }, process.env.TOKEN_SECRET)
 
-      user.token = toke;
-
-      return res.status(200).json();
-    } catch (error) {
-      return res.status(500).json({ error });
-    }
+    return res.status(200).json(token);
+  } catch (error) {
+    return res.status(500).json({ error });
   }
-
 }
-/*
+
 export const loginToken = async (req, res) => {
-  const { token } = req.body;
+  const {token} = req.body;
   try {
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -66,7 +43,6 @@ export const loginToken = async (req, res) => {
     return res.status(500).json({ error });
   }
 }
-*/
 
 export const register = async (req, res) => {
   const { username, password, email, birthdate, biografia } = req.body;
@@ -92,7 +68,7 @@ export const register = async (req, res) => {
 }
 
 export const InfoUser = async (req, res) => {
-  const user_id = req.query;
+  const {user_id} = req.query;
   if (!user_id) return res.status(400).json({ message: 'Missing user_id' });
   try {
     const user = await User.findById(user_id);
@@ -106,9 +82,8 @@ export const InfoUser = async (req, res) => {
       // followers_count,
       // followed_count,
     });
-
+    //res.json(req.user)
   } catch (error) {
     return res.status(500).json({ error });
   }
-
 }

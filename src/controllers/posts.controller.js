@@ -7,7 +7,6 @@ export const fecthPost = async (req, res) => {
   try {
     const autho = await Post.find({ author: { $eq: author } });
     if (!autho) return res.status(404).json({ message: 'User not found' });
-    //const userPosts = await Post.find({ author: autho.author});
     return res.status(200).json(autho);
   } catch (error) {
     return res.status(400).json({ message: 'Missing author' });
@@ -19,9 +18,7 @@ export const fetchlikesPost = async (req, res) => {
 }
 
 export const savedPost = async (req, res) => {
-  if (req.body.post_id) {
 
-  }
 }
 
 export const fecthTimeLinePost = async (req, res) => {
@@ -31,46 +28,22 @@ export const fecthTimeLinePost = async (req, res) => {
 }
 
 export const createdPost = async (req, res) => {
+  const { img_url, bio, author } = req.body;
+  try {
+    await Post.create({
+      img_url,
+      bio,
+      author
+    });
 
-  if (req.body.img_url && req.body.bio && req.body.author) {
-    const { img_url, bio, author } = req.body;
-    try {
-      await Post.create({
-        img_url,
-        bio,
-        author
-      });
-
-      return res.status(201).json();
-    } catch (error) {
-      return res.status(500).json({ error });
-    }
-  } else if (req.body.post_id && req.body.comment) {
-    const { post_id, comment } = req.body;
-    const post = await Post.findById(post_id);
-    if (post !== null || post !== undefined) {
-      try {
-        await Comment.create({
-          postId: post_id,
-          bioComment: comment
-        });
-
-        return res.status(201).json();
-      } catch (error) {
-        return res.status(500).json({ error });
-      }
-    } else {
-      return res.status(500).json({ error })
-    }
-  }else{
-    return res.status(500).json({ error })
+    return res.status(201).json();
+  } catch (error) {
+    return res.status(500).json({ error });
   }
-
-
 }
 
 export const infoPost = async (req, res) => {
-  const {post_id} = req.body;
+  const { post_id } = req.body;
   const post = await Post.findById(post_id);
   if (post !== null || post !== undefined) {
     try {
@@ -113,15 +86,13 @@ export const giveLikePost = async (req, res) => {
 export const savePost = async (req, res) => {
 
 }
-/*
+
 export const commentPost = async (req, res) => {
   const { post_id, comment } = req.body;
   const post = await Post.findById(post_id);
   if (post !== null || post !== undefined) {
     try {
-      //const user_id = post.author;
       await Comment.create({
-        //userId: user_id,
         postId: post_id,
         bioComment: comment
       });
@@ -134,4 +105,3 @@ export const commentPost = async (req, res) => {
     return res.status(500).json({ error })
   }
 }
-*/
