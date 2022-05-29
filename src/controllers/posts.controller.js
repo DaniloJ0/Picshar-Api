@@ -1,6 +1,7 @@
 import Post from '../models/post.model.js';
 import Comment from '../models/comments.model.js'
 import Like from '../models/likes.model.js'
+import Saved from '../models/savePost.model.js'
 
 export const fecthPost = async (req, res) => {
   const { author } = req.query;
@@ -18,7 +19,14 @@ export const fetchlikesPost = async (req, res) => {
 }
 
 export const savedPost = async (req, res) => {
-
+  const { id } = req.user;
+  const savedPost = await Saved.find({userId: {$eq: id}})
+  let postsId = [];
+  savedPost.forEach(i => {
+    postsId.push(i.postId)
+  });
+  const posts = await Post.find({_id: {$in: postsId}})
+  return res.status(200).json(posts)
 }
 
 export const fecthTimeLinePost = async (req, res) => {
@@ -35,7 +43,6 @@ export const createdPost = async (req, res) => {
       bio,
       author
     });
-
     return res.status(201).json();
   } catch (error) {
     return res.status(500).json({ error });
@@ -68,10 +75,12 @@ export const infoPost = async (req, res) => {
 
 export const giveLikePost = async (req, res) => {
   const { post_id } = req.body;
+  const { id } = req.user;
   const post = await Post.findById(post_id);
   if (post !== null || post !== undefined) {
     try {
       await Like.create({
+        userId: id,
         postId: post_id,
       });
       return res.status(201).json();
@@ -84,7 +93,22 @@ export const giveLikePost = async (req, res) => {
 }
 
 export const savePost = async (req, res) => {
-
+  const { post_id } = req.body;
+  const { id } = req.user;
+  const post = await Post.findById(post_id);
+  if (post !== null || post !== undefined) {
+    try {
+      await Saved.create({
+        userId: id,
+        postId: post_id,
+      });
+      return res.status(201).json();
+    } catch (error) {
+      return res.status(500).json({ error });
+    }
+  } else {
+    return res.status(500).json({ error })
+  }
 }
 
 export const commentPost = async (req, res) => {
@@ -96,7 +120,6 @@ export const commentPost = async (req, res) => {
         postId: post_id,
         bioComment: comment
       });
-
       return res.status(201).json();
     } catch (error) {
       return res.status(500).json({ error });

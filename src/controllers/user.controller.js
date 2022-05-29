@@ -24,7 +24,15 @@ export const login = async (req, res) => {
 
 export const loginToken = async (req, res) => {
   const {token} = req.body;
+  if (!token) return res.status(401).json({ error: 'Acceso denegado' })
   try {
+    const verified = jwt.verify(token, process.env.TOKEN_SECRET)
+    req.user = verified
+    res.status(200).json()
+  } catch (error) {
+    res.status(400).json({error: 'token no es válido'})
+  }
+  /*try {
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ message: 'User not found' });
     if (!bcrypt.confirmPassword(password, user.password)) {
@@ -41,7 +49,7 @@ export const loginToken = async (req, res) => {
     return res.status(200).json(token);
   } catch (error) {
     return res.status(500).json({ error });
-  }
+  }*/
 }
 
 export const register = async (req, res) => {
