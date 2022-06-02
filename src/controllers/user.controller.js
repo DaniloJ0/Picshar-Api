@@ -1,6 +1,7 @@
 import User from '../models/user.model.js';
+import Post from "../models/post.model.js";
 import jwt from 'jsonwebtoken';
-import * as bcrypt  from '../utils/bcrypt.utils.js'
+import * as bcrypt from '../utils/bcrypt.utils.js'
 
 export const login =  async(req, res)=> {
     const {username, password} = req.body;
@@ -12,18 +13,44 @@ export const login =  async(req, res)=> {
           return res.status(401).json({ message: 'Incorrect password' });
         }
 
-        const token = jwt.sign({
-            id: user._id,
-            name: user.username
-        }, process.env.TOKEN_SECRET)
+    const token = jwt.sign({
+      id: user._id,
+      name: user.username
+    }, process.env.TOKEN_SECRET)
 
-        return res.status(200).json(token);
-    } catch (error) {
-        return res.status(500).json({ error });
-    }
+    return res.status(200).json(token);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
 }
 
-export const loginToken =  async(req, res)=> {
+export const getUserId =  async(req, res)=> {
+  const {username} = req.body;
+  if(!username) return res.status(400).json({error: 'Missing username or password'})
+  try {
+      const user = await User.findOne({username});
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+  return res.status(200).json(user._id.toString());
+} catch (error) {
+  return res.status(500).json({ error });
+}
+}
+
+export const deleteUser = async(req, res) => {
+  const username =  req.body ? req.body.username : req.query.username;
+
+  try {
+    await User.findOne({username}).remove().exec();
+    return res.status(200).json({});
+  } catch (error) {
+    return res.status(400).json({error});
+  }
+
+
+}
+
+export const loginToken = async (req, res) => {
   const {token} = req.body;
   if(!token) return res.status(400).json({error: 'Token is required'});
   try {
@@ -36,32 +63,30 @@ export const loginToken =  async(req, res)=> {
   }
 }
 
+export const register = async (req, res) => {
+  const { username, password, email, birthdate, biografia } = req.body;
+  try {
+    const user = await User.create({
+      username,
+      password: bcrypt.encryptPassword(password),
+      email,
+      birthdate,
+      biografia
+    });
+    const token = jwt.sign({
+      name: user.username,
+      id: user._id
+    }, process.env.TOKEN_SECRET)
 
-export const register =  async(req, res)=> {
-    const {username, password,email,birthdate,biografia} = req.body;
-    try {
-      const user = await User.create({
-        username,
-        password: bcrypt.encryptPassword(password),
-        email: email.toLowerCase(),
-        birthdate,
-        biografia,
-      });
-      const token = jwt.sign({
-        name: user.username,
-        id: user._id
-      },process.env.TOKEN_SECRET)
+    user.token = token;
 
-    user.token= token;
-    
     return res.status(201).json(user.token);
-    } catch (error) {
-      return res.status(500).json({ error });
-    }
-
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
 }
 
-export const InfoUser =  async(req, res)=> {
+export const InfoUser = async (req, res) => {
   const {user_id} = req.query;
   if (!user_id) return res.status(400).json({ message: 'Missing user_id' });
   try {
@@ -71,15 +96,14 @@ export const InfoUser =  async(req, res)=> {
       username: user.username,
       email: user.email,
       bio: user.biografia,
-      liked_count: user.likes,
-      posts_count: user.posts,
-      followers_count: user.followers,
-      followed_count: user.follows,
+      liked_count: user.postsLiked.length,
+      posts_count: user.posts.length,
+      followers_count: user.followers.length,
+      followed_count: user.follows.length,
     });
     //res.json(req.user)
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error });
   }
 }
-
-
