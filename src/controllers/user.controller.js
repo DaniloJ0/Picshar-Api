@@ -30,10 +30,9 @@ export const loginToken =  async(req, res)=> {
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
     const user = await User.findById(decoded.id);
     if (!user) return res.status(400).json({ error: 'Invalid token1' });
-
     return res.status(200).json({});
   } catch (error) {
-    res.status(400).json({})
+    return res.status(400).json({error});
   }
 }
 
@@ -55,17 +54,15 @@ export const register =  async(req, res)=> {
 
     user.token= token;
     
-    return res.status(201).json(user);
+    return res.status(201).json(user.token);
     } catch (error) {
       return res.status(500).json({ error });
     }
 
 }
 
-
-
 export const InfoUser =  async(req, res)=> {
-  const user_id  = req.query;
+  const {user_id} = req.query;
   if (!user_id) return res.status(400).json({ message: 'Missing user_id' });
   try {
     const user = await User.findById(user_id);
@@ -79,11 +76,10 @@ export const InfoUser =  async(req, res)=> {
       followers_count: user.followers,
       followed_count: user.follows,
     });
-
+    //res.json(req.user)
   } catch (error) {
     return res.status(500).json({ error });
   }
-
 }
 
 
