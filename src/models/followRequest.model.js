@@ -7,7 +7,7 @@ const followRequest = new Schema({
         required: true
     },
     recipient: {
-        type: Schema.Types.ObjectIdnt,
+        type: Schema.Types.ObjectId,
         required: true
     }
 });

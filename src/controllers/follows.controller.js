@@ -1,5 +1,6 @@
 import Follow from "../models/follows.model.js";
 import User from "../models/user.model.js";
+import Post from "../models/post.model.js";
 import followRequest from "../models/followRequest.model.js";
 
 export const fetchFollowing = async (req, res) => {
@@ -29,29 +30,29 @@ export const fetchFollower = async (req, res) => {
 };
 
 export const requestUser = async (req, res) => {
-  const { id } = req.user;
+  const id = req.user ? req.user.id : req.body.user.id;
   const { user_id } = req.body;
   if (!user_id) return res.status(400).json({ message: "Missing user_id" });
   try {
     followRequest.create({
       requester: id,
       recipient: user_id,
-    });
+    }).then(() => res.status(200).json("created"));
   } catch (error) {
     return res.status(500).json({ error });
   }
 };
 
 export const responseUser = async (req, res) => {
-  const { id } = req.user;
+  const id = req.user ? req.user.id : req.body.user.id;
   const { request_id, action } = req.body;
   if (!request_id || !action ) return res.status(400).json({ message: 'Missing action or request_id'});
-  const fr = followRequest.findById(request_id);
+  const fr = await followRequest.findById(request_id);
   if (!fr) return res.status(400).json({ message: "Missing request" });
-  if (id === fr.recipient) {
+  if (id === fr.recipient.toString()) {
     if (action == "accept") {
-      const reciveFollow = User.findById(id);
-      const sendFollow = User.findById(fr.requester);
+      const reciveFollow = await User.findById(id);
+      const sendFollow = await User.findById(fr.requester);
       reciveFollow.followers.push(fr.requester);
       sendFollow.followers.push(id);
       reciveFollow.save();
@@ -60,5 +61,8 @@ export const responseUser = async (req, res) => {
     }else if (action == "reject") {
         res.status(200).json({})
     }
+  }
+  else {
+    res.status(400).json({ message: "Bad request" });
   }
 };

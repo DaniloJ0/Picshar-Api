@@ -32,7 +32,7 @@ export const fetchlikesPost = async (req, res) => {
 
 //GET /posts/saved-by
 export const savedPost = async (req, res) => {
-  const { id } = req.user;
+  const  id  = req.user ? req.user.id : req.query.id;
   const user = User.findById(id);
   const posts = await Post.find({ _id: { $in: user.postSaved } });
   return res.status(200).json(posts)
@@ -41,7 +41,7 @@ export const savedPost = async (req, res) => {
 //GET /posts/timeline
 export const fecthTimeLinePost = async (req, res) => {
   const Page = parseInt(req.body.page);
-  const { id } = req.user;
+  const  id  = req.user ? req.user.id : req.query.id;
   const posts = await Post.find({ author: { $eq: id } })
     .skip(Page * 2 - 2)
     .limit(2);
@@ -69,22 +69,23 @@ export const createdPost = async (req, res) => {
 
 // GET /posts/
 export const infoPost = async (req, res) => {
-  const { post_id } = req.body;
+  //const { post_id } = req.body;
+  const post_id = req.body && req.body.post_id  ? req.body.post_id : req.query.post_id;
   const post = await Post.findById(post_id);
-  if (!post) return res.status(400).json({ error });
+  if (!post) return res.status(400).json({ error: 'post does not exists.' });
     try {
-      const likes = await Like.find({ postId: { $eq: post_id } }).count();
+      //const likes = await Like.find({ postId: { $eq: post_id } }).count();
       const comments = await Comment.find({ postId: { $eq: post_id } });
       const publi = {
         img_url: post.img_url,
         bio: post.bio,
         author: post.author,
-        likes: likes,
+        likes: 0,
         comments: comments,
       };
       return res.status(201).json(publi);
     } catch (error) {
-      return res.status(501).json({ error });
+      return res.status(501).json({ error: error });
     }
 };
 
@@ -92,7 +93,7 @@ export const infoPost = async (req, res) => {
 export const giveLikePost = async (req, res) => {
   const { post_id } = req.body;
   if (!post_id) return res.status(500).json({ message: "Required post_id" });
-  const { id } = req.user;
+  const  id  = req.user ? req.user.id : req.body.id;
   try {
     const post = await Post.findById(post_id);
     if (!post) return res.status(500).json({ message: "Post not Found" });
@@ -110,7 +111,7 @@ export const giveLikePost = async (req, res) => {
 export const savePost = async (req, res) => {
   const { post_id } = req.body;
   if (!post_id) return res.status(500).json({ message: "Required post_id" });
-  const { id } = req.user;
+  const id = req.user ? req.user.id : req.body.id;
   try {
     const post = await Post.findById(post_id);
     if (!post) return res.status(500).json({ message: "Post not Found" });

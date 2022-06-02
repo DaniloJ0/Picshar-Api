@@ -9,7 +9,7 @@ const app =  express();
 import indexRoute from './src/routes/index.route.js';
 import userRoute from './src/routes/users.route.js';
 import postRoute from './src/routes/posts.route.js';
-import followRoute from './src/routes/users.route.js';
+import followRoute from './src/routes/follows.route.js';
 
 // Middlewares
 app.use(cors());

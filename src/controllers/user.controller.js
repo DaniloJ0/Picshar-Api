@@ -24,6 +24,32 @@ export const login =  async(req, res)=> {
   }
 }
 
+export const getUserId =  async(req, res)=> {
+  const {username} = req.body;
+  if(!username) return res.status(400).json({error: 'Missing username or password'})
+  try {
+      const user = await User.findOne({username});
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+  return res.status(200).json(user._id.toString());
+} catch (error) {
+  return res.status(500).json({ error });
+}
+}
+
+export const deleteUser = async(req, res) => {
+  const username =  req.body ? req.body.username : req.query.username;
+
+  try {
+    await User.findOne({username}).remove().exec();
+    return res.status(200).json({});
+  } catch (error) {
+    return res.status(400).json({error});
+  }
+
+
+}
+
 export const loginToken = async (req, res) => {
   const {token} = req.body;
   if(!token) return res.status(400).json({error: 'Token is required'});

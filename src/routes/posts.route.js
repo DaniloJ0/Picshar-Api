@@ -4,12 +4,14 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', verifyToken, (req, res) => {
-    const {post_id} = req.body;
+    //const {post_id} = req.body;
+    const post_id = req.body && req.body.post_id  ? req.body.post_id : req.query.post_id;
     if (!post_id) postController.fecthPost(req,res)
     else postController.infoPost(req, res)
 })
 router.post('/', verifyToken, (req, res) => {
-    const {post_id} = req.body;
+    // const {post_id} = req.body;
+    const post_id = req.body && req.body.post_id  ? req.body.post_id : req.query.post_id;
     if (!post_id) postController.createdPost(req, res)
     else postController.commentPost(req, res)
 })
